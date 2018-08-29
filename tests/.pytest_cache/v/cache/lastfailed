@@ -1,0 +1,8 @@
+{
+  "test_login.py::test_drag": true,
+  "test_login.py::test_remove_all": true,
+  "test_login.py::test_remove_job": true,
+  "test_login.py::test_remove_one_job": true,
+  "test_login.py::test_upload": true,
+  "test_login.py::test_user_add_jos": true
+}
