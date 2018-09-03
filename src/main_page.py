@@ -9,7 +9,10 @@ from selene import browser
 from selene.support import by
 from selene.api import *
 from selene.support.jquery_style_selectors import s, ss
-config.browser_name = 'chrome'
+# config.browser_name = 'chrome'
+from images import NO_JOBS
+from src.folder_gen import Folder
+
 
 class MainPage(object):
 
@@ -22,18 +25,17 @@ class MainPage(object):
         self._body = s('mat-toolbar.mat-primary > span:nth-child(1)')
         self.job = 'h3.mat-line'
         self.work_plate = '#canvasPanel'
+        # self.jobs = s('#name')
 
     def job(self, name):
         return '//h3[contains(text(), "{}")]'.format(name)
 
+    # def jobs_names(self):
+    #     return self.jobs.find_all('#jb')
 
     def open(self):
-        browser.open_url("http://localhost:4200/")
+        browser.open_url("/")
         return self
-
-    # def open(self):
-    #     browser.open_url("https://html5demos.com/drag/")
-    #     return self
 
     def add_job(self, name):
         self._new_job_mane.set(name)
@@ -42,7 +44,7 @@ class MainPage(object):
 
     def test_upload_from_pc(self):
 
-        s('#dropZone').click()
+        s('#jobsListAttachJobButton').click()
         time.sleep(1)
         app = Application().connect(title_re="Open*")
         app.Open.Edit.set_edit_text('C:\\Users\\ssoloshchenko\\Desktop\\jobs\\vector .pdf')  # update path to local file
@@ -51,7 +53,6 @@ class MainPage(object):
                 app.Open.Button.click()  # open button is getting focused
             except pywinauto.findbestmatch.MatchError:
                 break
-        browser.element(by.xpath('//button[text() = "Upload"]')).click()
         time.sleep(1)
         return self
 
@@ -75,40 +76,34 @@ class MainPage(object):
                 count -= 1
         return self
 
-    def create_folder(self):
-        """Creating folder"""
-        defaut = 'C:\\Users\\ssoloshchenko\\job_control\\' + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M')
-        try:
-            os.makedirs(defaut)
-            return defaut
-        except OSError:
-            print('Error: Creating directory. ' + defaut)
+    # def create_folder(self):
+    #     """Creating folder"""
+    #     defaut = 'C:\\Users\\ssoloshchenko\\job_control\\' + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M')
+    #     try:
+    #         os.makedirs(defaut)
+    #         return defaut
+    #     except OSError:
+    #         print('Error: Creating directory. ' + defaut)
 
-    def compare(self):
-        image_folder = self.create_folder()
+    def compare(self, ):
+        # image_folder = self.create_folder()
+        image_folder = Folder().folder
         time.sleep(2)
         #Will take a screenshot as png and will place it in newly created folder
         path = browser.take_screenshot(path=image_folder, filename='Actual_result')
 
-        expected = cv2.imread('C:\\Users\\ssoloshchenko\\job_control\\Expected_result.png')
+        # expected = cv2.imread('C:\\Users\\ssoloshchenko\\job_control\\Expected_result.png')
+        expected = cv2.imread(NO_JOBS)
         actual = cv2.imread(path)
         difference = cv2.subtract(expected, actual)
         result = not np.any(difference)
         if result is True:
             print("Images are same")
+            return True
         else:
             cv2.imwrite('{}\\result.png'.format(image_folder), difference)
             print('Images are different')
+            return False
 
 
-class LoginPage(object):
-    def __init__(self):
-        self.user_name = None
-        self.password = None
-        self.submit = None
 
-    def login_as(self, user):
-        self.user_name.set(user.name)
-        self.password.set(user.password)
-        self.submit.click()
-        return MainPage()
