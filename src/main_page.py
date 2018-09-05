@@ -1,9 +1,11 @@
+import allure
 import cv2
 import datetime
 import os
 import time
 import numpy as np
 import pywinauto
+from allure_commons.types import AttachmentType
 from pywinauto import Application
 from selene import browser
 from selene.support import by
@@ -11,7 +13,7 @@ from selene.api import *
 from selene.support.jquery_style_selectors import s, ss
 # config.browser_name = 'chrome'
 from images import NO_JOBS
-from src.folder_gen import Folder
+from PIL import Image
 
 
 class MainPage(object):
@@ -25,13 +27,11 @@ class MainPage(object):
         self._body = s('mat-toolbar.mat-primary > span:nth-child(1)')
         self.job = 'h3.mat-line'
         self.work_plate = '#canvasPanel'
-        # self.jobs = s('#name')
+        self.pl = s('#mat-button-toggle-2-button > div')
+        self.en = s('#mat-button-toggle-1-button > div')
 
     def job(self, name):
         return '//h3[contains(text(), "{}")]'.format(name)
-
-    # def jobs_names(self):
-    #     return self.jobs.find_all('#jb')
 
     def open(self):
         browser.open_url("/")
@@ -48,14 +48,15 @@ class MainPage(object):
         time.sleep(1)
         app = Application().connect(title_re="Open*")
         app.Open.Edit.set_edit_text('C:\\Users\\ssoloshchenko\\Desktop\\jobs\\vector .pdf')  # update path to local file
-        while True:
-            try:
-                app.Open.Button.click()  # open button is getting focused
-            except pywinauto.findbestmatch.MatchError:
-                break
+        # while True:
+        #     try:
+        #         app.Open.Button.click()  # open button is getting focused
+        #     except pywinauto.findbestmatch.MatchError:
+        #         break
+        time.sleep(1)
+        app.Open.Button.click()
         time.sleep(1)
         return self
-
 
     def remove_job(self, job_name):
         s(by.xpath('//h3[contains(text(), "{}")]/../..//button[starts-with(@id,"jobsListJobDeleteButton")]'.format(job_name))).click()
@@ -76,24 +77,12 @@ class MainPage(object):
                 count -= 1
         return self
 
-    # def create_folder(self):
-    #     """Creating folder"""
-    #     defaut = 'C:\\Users\\ssoloshchenko\\job_control\\' + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M')
-    #     try:
-    #         os.makedirs(defaut)
-    #         return defaut
-    #     except OSError:
-    #         print('Error: Creating directory. ' + defaut)
-
-    def compare(self, ):
-        # image_folder = self.create_folder()
-        image_folder = Folder().folder
+    def compare(self, f, name, name_expected):
+        image_folder = f
         time.sleep(2)
         #Will take a screenshot as png and will place it in newly created folder
-        path = browser.take_screenshot(path=image_folder, filename='Actual_result')
-
-        # expected = cv2.imread('C:\\Users\\ssoloshchenko\\job_control\\Expected_result.png')
-        expected = cv2.imread(NO_JOBS)
+        path = browser.take_screenshot(path=image_folder, filename='{}'.format(name))
+        expected = cv2.imread(name_expected)
         actual = cv2.imread(path)
         difference = cv2.subtract(expected, actual)
         result = not np.any(difference)
@@ -105,5 +94,41 @@ class MainPage(object):
             print('Images are different')
             return False
 
+
+    def screenshot(self, f, name):
+        image_folder = f
+        time.sleep(2)
+        # Will take a screenshot as png and will place it in newly created folder
+        browser.take_screenshot(path=image_folder, filename='{}'.format(name))
+
+
+    def canvas(self, f, name, name_expected):
+        #TODO add object as a paremeter, create separate function for comparing images
+        image_folder = f
+        tab = s(by.xpath('//app-lbl[text()="Work"]'))
+        element = s("#canvas123")
+        tab.click()
+        location = element.location
+        size = element.size
+        path = browser.take_screenshot(path=image_folder, filename='{}'.format(name))
+        x = location['x']
+        y = location['y']
+        width = location['x'] + size['width']
+        height = location['y'] + size['height']
+        im = Image.open(path)
+        im = im.crop((int(x), int(y), int(width), int(height)))
+        im.save(path)
+
+        expected = cv2.imread(name_expected)
+        actual = cv2.imread(path)
+        difference = cv2.subtract(expected, actual)
+        result = not np.any(difference)
+        if result is True:
+            print("Images are same")
+            return True
+        else:
+            cv2.imwrite('{}\\result.png'.format(image_folder), difference)
+            print('Images are different')
+            return False
 
 
