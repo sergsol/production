@@ -12,7 +12,6 @@ from selene.support import by
 from selene.api import *
 from selene.support.jquery_style_selectors import s, ss
 # config.browser_name = 'chrome'
-from images import NO_JOBS
 from PIL import Image
 
 
@@ -27,8 +26,9 @@ class MainPage(object):
         self._body = s('mat-toolbar.mat-primary > span:nth-child(1)')
         self.job = 'h3.mat-line'
         self.work_plate = '#canvasPanel'
-        self.pl = s('#mat-button-toggle-2-button > div')
-        self.en = s('#mat-button-toggle-1-button > div')
+        self.pl = s(by.xpath('//div[text()="PL"]'))
+        self.en = s(by.xpath('//div[text()="EN"]'))
+        self.allert = s(by.xpath('//snack-bar-container//span'))
 
     def job(self, name):
         return '//h3[contains(text(), "{}")]'.format(name)
@@ -48,13 +48,11 @@ class MainPage(object):
         time.sleep(1)
         app = Application().connect(title_re="Open*")
         app.Open.Edit.set_edit_text('C:\\Users\\ssoloshchenko\\Desktop\\jobs\\vector .pdf')  # update path to local file
-        # while True:
-        #     try:
-        #         app.Open.Button.click()  # open button is getting focused
-        #     except pywinauto.findbestmatch.MatchError:
-        #         break
-        time.sleep(1)
-        app.Open.Button.click()
+        while True:
+            try:
+                app.Open.Button.click()  # open button is getting focused
+            except pywinauto.findbestmatch.MatchError:
+                break
         time.sleep(1)
         return self
 

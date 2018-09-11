@@ -1,24 +1,28 @@
+import time
 from allure_commons.types import AttachmentType
 from selene.api import *
 from selene.support.conditions import have
 from selene import config, browser
 from images import *
 from src.folder_gen import Folder
+from src.login_page import LoginPage
 from src.main_page import MainPage
 from src.user import User
 import allure
-from PIL import Image
 
-# def test_login_admin():
-#     admin = User('Admin', 'Password')
-#     LoginPage().login_as(admin)
 
 folder = Folder().create_folder()
 
 
+@allure.title("Login to Production as admin user")
+def test_login_admin():
+    admin = User('Admin', 'Password')
+    LoginPage().open()
+    LoginPage().login_as(admin)
+
+
 @allure.title("Login to Production center, checking title")
 def test_login():
-    MainPage().open()
     browser.should(have.title('Trotec Production Center'))
     MainPage().remove_all_jobs()
 
@@ -45,6 +49,14 @@ def test_remove_all():
     MainPage().remove_all_jobs().jobs_list.should(have.size(0))
 
 
+@allure.title("Uase cant create")
+def test_no_name_job():
+    MainPage()._add_button.click()
+    MainPage().allert.should(have.text('Job name cannot be empty'))
+    MainPage().jobs_list.should(have.size(0))
+    time.sleep(2)
+
+
 @allure.title("Comparing 2 screenshots, with empty job list")
 def test_compare_job_list():
     assert MainPage().compare(folder, 'No_jobs', NO_JOBS)
@@ -60,6 +72,7 @@ def test_compare_language_selection():
 def test_compare_language():
     MainPage().en.click()
     assert MainPage().compare(folder, 'EN', EN_LANGUAGE)
+
 
 @allure.title("Testing canvas displayed")
 def test_screen():
