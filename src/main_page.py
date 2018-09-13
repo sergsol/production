@@ -18,6 +18,7 @@ from PIL import Image
 class MainPage(object):
 
     def __init__(self):
+        self._header = s('app-lbl[ng-reflect-key="Header_Toolbar_WelcomeTo"]')
         self._new_job_mane = s('#jobsListNewJobNameInput')
         self._add_button = s('#jobsListNewJobNameButton')
         self.jobs_list = ss(by.xpath(' //*[starts-with(@id,"jobsListJob")]//h3'))
@@ -75,11 +76,7 @@ class MainPage(object):
                 count -= 1
         return self
 
-    def compare(self, f, name, name_expected):
-        image_folder = f
-        time.sleep(2)
-        #Will take a screenshot as png and will place it in newly created folder
-        path = browser.take_screenshot(path=image_folder, filename='{}'.format(name))
+    def compare_screens(self, name_expected, path, image_folder, test):
         expected = cv2.imread(name_expected)
         actual = cv2.imread(path)
         difference = cv2.subtract(expected, actual)
@@ -88,9 +85,19 @@ class MainPage(object):
             print("Images are same")
             return True
         else:
-            cv2.imwrite('{}\\result.png'.format(image_folder), difference)
+            cv2.imwrite('{}\\result.png'.format(image_folder, test), difference)
             print('Images are different')
             return False
+            # cv2.imwrite('{}\\result.png'.format(image_folder), difference)
+            # print('Images are different')
+            # return False
+
+    def compare(self, f, name, name_expected, test):
+        image_folder = f
+        time.sleep(2)
+        #Will take a screenshot as png and will place it in newly created folder
+        path = browser.take_screenshot(path=image_folder, filename='{}'.format(name))
+        return self.compare_screens(name_expected, path, image_folder, test)
 
 
     def screenshot(self, f, name):
@@ -100,12 +107,13 @@ class MainPage(object):
         browser.take_screenshot(path=image_folder, filename='{}'.format(name))
 
 
-    def canvas(self, f, name, name_expected):
-        #TODO add object as a paremeter, create separate function for comparing images
+    def compare_canvas(self, f, name, name_expected, test):
+        #TODO add object as a paremeter
         image_folder = f
         tab = s(by.xpath('//app-lbl[text()="Work"]'))
         element = s("#canvas123")
         tab.click()
+        time.sleep(10)
         location = element.location
         size = element.size
         path = browser.take_screenshot(path=image_folder, filename='{}'.format(name))
@@ -116,17 +124,5 @@ class MainPage(object):
         im = Image.open(path)
         im = im.crop((int(x), int(y), int(width), int(height)))
         im.save(path)
-
-        expected = cv2.imread(name_expected)
-        actual = cv2.imread(path)
-        difference = cv2.subtract(expected, actual)
-        result = not np.any(difference)
-        if result is True:
-            print("Images are same")
-            return True
-        else:
-            cv2.imwrite('{}\\result.png'.format(image_folder), difference)
-            print('Images are different')
-            return False
-
+        return self.compare_screens(name_expected, path, image_folder, test)
 

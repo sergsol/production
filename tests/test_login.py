@@ -1,4 +1,5 @@
 import time
+import pytest
 from allure_commons.types import AttachmentType
 from selene.api import *
 from selene.support.conditions import have
@@ -14,11 +15,19 @@ import allure
 folder = Folder().create_folder()
 
 
+@allure.title("Login button is disabled")
+def test_try_login():
+    LoginPage().open()
+    LoginPage().user_name.should(be.blank)
+    LoginPage().password.should(be.blank)
+    LoginPage().submit.should_not(be.clickable)
+
+
 @allure.title("Login to Production as admin user")
 def test_login_admin():
     admin = User('Admin', 'Password')
-    LoginPage().open()
     LoginPage().login_as(admin)
+    LoginPage().submit.should_not(be.clickable)
 
 
 @allure.title("Login to Production center, checking title")
@@ -27,7 +36,7 @@ def test_login():
     MainPage().remove_all_jobs()
 
 
-@allure.title("Used adds several jobs")
+@allure.title("User adds several jobs")
 def test_user_add_jos():
     MainPage().add_job('destro').add_job('test').add_job('chine').add_job('giant').jobs_list.should(have.size(4))
     MainPage().jobs_list.should(have.exact_texts('giant', 'chine', 'test', 'destro'))
@@ -49,7 +58,7 @@ def test_remove_all():
     MainPage().remove_all_jobs().jobs_list.should(have.size(0))
 
 
-@allure.title("Uase cant create")
+@allure.title("User can't create job without name")
 def test_no_name_job():
     MainPage()._add_button.click()
     MainPage().allert.should(have.text('Job name cannot be empty'))
@@ -59,21 +68,31 @@ def test_no_name_job():
 
 @allure.title("Comparing 2 screenshots, with empty job list")
 def test_compare_job_list():
-    assert MainPage().compare(folder, 'No_jobs', NO_JOBS)
+    assert MainPage().compare(folder, 'No_jobs', NO_JOBS, 'Jobs list has items')
 
 
 @allure.title("Selecting polish language")
 def test_compare_language_selection():
     MainPage().pl.click()
-    assert MainPage().compare(folder, 'PL', PL_LANGUAGE)
+    assert MainPage().compare(folder, 'PL', PL_LANGUAGE, 'Polish not selected')
+
+
+@allure.title("Welcome is in polish language")
+def test_pl_header():
+    MainPage()._header.should(have.exact_text('Witamy w'))
 
 
 @allure.title("Selecting english language")
 def test_compare_language():
     MainPage().en.click()
-    assert MainPage().compare(folder, 'EN', EN_LANGUAGE)
+    assert MainPage().compare(folder, 'EN', EN_LANGUAGE, 'English not selected')
+
+
+@allure.title("Welcome is in english language")
+def test_pl_header():
+    MainPage()._header.should(have.exact_text('Welcome to'))
 
 
 @allure.title("Testing canvas displayed")
 def test_screen():
-    MainPage().canvas(folder, 'test', WORK_PLATE)
+    assert MainPage().compare_canvas(folder, 'canvas', WORK_PLATE, 'Canvas_error')
