@@ -95,4 +95,5 @@ def test_pl_header():
 
 @allure.title("Testing canvas displayed")
 def test_screen():
-    assert MainPage().compare_canvas(folder, 'canvas', WORK_PLATE, 'Canvas_error')
+    MainPage().work_tab.click()
+    assert MainPage().compare_canvas(folder, 'Canvas', WORK_PLATE, 'Canvas_error')

@@ -1,7 +1,4 @@
-import allure
 import cv2
-import datetime
-import os
 import time
 import numpy as np
 import pywinauto
@@ -19,6 +16,9 @@ class MainPage(object):
 
     def __init__(self):
         self._header = s('app-lbl[ng-reflect-key="Header_Toolbar_WelcomeTo"]')
+        self.pl = s(by.xpath('//div[text()="PL"]'))
+        self.en = s(by.xpath('//div[text()="EN"]'))
+        ############################################################
         self._new_job_mane = s('#jobsListNewJobNameInput')
         self._add_button = s('#jobsListNewJobNameButton')
         self.jobs_list = ss(by.xpath(' //*[starts-with(@id,"jobsListJob")]//h3'))
@@ -27,9 +27,10 @@ class MainPage(object):
         self._body = s('mat-toolbar.mat-primary > span:nth-child(1)')
         self.job = 'h3.mat-line'
         self.work_plate = '#canvasPanel'
-        self.pl = s(by.xpath('//div[text()="PL"]'))
-        self.en = s(by.xpath('//div[text()="EN"]'))
+        ############################################################
         self.allert = s(by.xpath('//snack-bar-container//span'))
+        ############################################################
+        self.work_tab = s(by.xpath('//app-lbl[text()="Work"]'))
 
     def job(self, name):
         return '//h3[contains(text(), "{}")]'.format(name)
@@ -85,12 +86,10 @@ class MainPage(object):
             print("Images are same")
             return True
         else:
-            cv2.imwrite('{}\\result.png'.format(image_folder, test), difference)
+            cv2.imwrite('{}\\{}.png'.format(image_folder, test), difference)
             print('Images are different')
             return False
-            # cv2.imwrite('{}\\result.png'.format(image_folder), difference)
-            # print('Images are different')
-            # return False
+
 
     def compare(self, f, name, name_expected, test):
         image_folder = f
@@ -110,10 +109,7 @@ class MainPage(object):
     def compare_canvas(self, f, name, name_expected, test):
         #TODO add object as a paremeter
         image_folder = f
-        tab = s(by.xpath('//app-lbl[text()="Work"]'))
         element = s("#canvas123")
-        tab.click()
-        time.sleep(10)
         location = element.location
         size = element.size
         path = browser.take_screenshot(path=image_folder, filename='{}'.format(name))
