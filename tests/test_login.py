@@ -46,11 +46,12 @@ def test_user_add_jos():
 def test_remove_one_job():
     MainPage().remove_job('test')
     MainPage().jobs_list.should(have.exact_texts('giant', 'chine', 'destro'))
+    time.sleep(1)
 
 
-@allure.title("Uploading file from local drive")
-def test_upload():
-    MainPage().test_upload_from_pc().jobs_list.should(have.texts('vector .pdf', 'giant', 'chine', 'destro'))
+# @allure.title("Uploading file from local drive")
+# def test_upload():
+#     MainPage().test_upload_from_pc().jobs_list.should(have.texts('vector .pdf', 'giant', 'chine', 'destro'))
 
 
 @allure.title("Removes all jobs, check that job list has no items")
@@ -66,9 +67,9 @@ def test_no_name_job():
     time.sleep(2)
 
 
-@allure.title("Comparing 2 screenshots, with empty job list")
-def test_compare_job_list():
-    assert MainPage().compare(folder, 'No_jobs', NO_JOBS, 'Jobs list has items')
+# @allure.title("Comparing 2 screenshots, with empty job list")
+# def test_compare_job_list():
+#     assert MainPage().compare(folder, 'No_jobs', NO_JOBS, 'Jobs list has items')
 
 
 @allure.title("Selecting polish language")

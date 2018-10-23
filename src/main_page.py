@@ -2,7 +2,6 @@ import cv2
 import time
 import numpy as np
 import pywinauto
-from allure_commons.types import AttachmentType
 from pywinauto import Application
 from selene import browser
 from selene.support import by
@@ -11,9 +10,17 @@ from selene.support.jquery_style_selectors import s, ss
 # config.browser_name = 'chrome'
 from PIL import Image
 
+# from selenium.webdriver.chrome.options import Options
+# from selenium import webdriver
+# from webdriver_manager.chrome import ChromeDriverManager
+# chrome_options = Options()
+# chrome_options.add_argument("--headless")
+# chrome_options.add_argument("--window-size=1920x1080")
+#
+# driver = webdriver.Chrome(ChromeDriverManager().install(), chrome_options=chrome_options,)
+# browser.set_driver(driver)
 
 class MainPage(object):
-
     def __init__(self):
         self._header = s('app-lbl[ng-reflect-key="Header_Toolbar_WelcomeTo"]')
         self.pl = s(by.xpath('//div[text()="PL"]'))
@@ -45,9 +52,7 @@ class MainPage(object):
         return self
 
     def test_upload_from_pc(self):
-
         s('#jobsListAttachJobButton').click()
-        time.sleep(1)
         app = Application().connect(title_re="Open*")
         app.Open.Edit.set_edit_text('C:\\Users\\ssoloshchenko\\Desktop\\jobs\\vector .pdf')  # update path to local file
         while True:
@@ -59,9 +64,9 @@ class MainPage(object):
         return self
 
     def remove_job(self, job_name):
-        s(by.xpath('//h3[contains(text(), "{}")]/../..//button[starts-with(@id,"jobsListJobDeleteButton")]'.format(job_name))).click()
+        s(by.xpath('//h3[contains(text(), "{}")]/../..//button[starts-with(@id,"jobsListJobDeleteButton")]'
+                   .format(job_name))).click()
         return self
-
     # def remove_jobs(self, *jobs):
     #     for job in jobs:
     #         s(by.xpath('//h3[contains(text(), "{}")]/../../button'.format(job))).click()
@@ -90,7 +95,6 @@ class MainPage(object):
             print('Images are different')
             return False
 
-
     def compare(self, f, name, name_expected, test):
         image_folder = f
         time.sleep(2)
@@ -98,15 +102,13 @@ class MainPage(object):
         path = browser.take_screenshot(path=image_folder, filename='{}'.format(name))
         return self.compare_screens(name_expected, path, image_folder, test)
 
-
     def screenshot(self, f, name):
         image_folder = f
         time.sleep(2)
-        # Will take a screenshot as png and will place it in newly created folder
         browser.take_screenshot(path=image_folder, filename='{}'.format(name))
 
-
     def compare_canvas(self, f, name, name_expected, test):
+        time.sleep(1)
         #TODO add object as a paremeter
         image_folder = f
         element = s("#canvas123")
@@ -121,4 +123,5 @@ class MainPage(object):
         im = im.crop((int(x), int(y), int(width), int(height)))
         im.save(path)
         return self.compare_screens(name_expected, path, image_folder, test)
+
 
