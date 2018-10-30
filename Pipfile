@@ -3,7 +3,6 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 name = "pypi"
 
-
 [packages]
 selene = "*"
 pytest = "*"
@@ -11,6 +10,7 @@ pytest-env = "*"
 allure-pytest = "*"
 six = "*"
 pipreqs = "*"
+requests = "*"
 
 [dev-packages]
 
